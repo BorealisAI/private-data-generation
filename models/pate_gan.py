@@ -90,7 +90,9 @@ class PATE_GAN:
                     optimizer_td[i].zero_grad()
                     label = torch.full((inputs.size()[0],), real_label).cuda()
                     output = self.teacher_disc[i].forward(torch.cat([inputs, categories.unsqueeze(1).double()], dim=1))
-                    err_d_real = criterion(output, label.double())
+                    label = label.unsqueeze(1)
+                    label = label.double()
+                    err_d_real = criterion(output, label)
                     err_d_real.backward()
 
                     # train with fake
@@ -147,8 +149,9 @@ class PATE_GAN:
             else:
                 fake = self.generator(z.double())
                 output = self.student_disc.forward(fake)
-
-            err_g = criterion(output, label.double())
+            label = label.unsqueeze(1)
+            label = label.double()
+            err_g = criterion(output, label)
             err_g.backward()
             optimizer_g.step()
 
